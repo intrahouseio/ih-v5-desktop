@@ -75,6 +75,10 @@ function windowConnectToServer(uuid, params) {
     const window = store.windows[uuid];
 
     window.title = title;
+    window.on('page-title-updated', (evt) => {
+      evt.preventDefault();
+    });
+
     window.loadURL(serverURL).then(() => {
       window.title = title;
     });
