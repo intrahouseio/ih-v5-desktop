@@ -3,7 +3,7 @@ const wrtc = require('wrtc')
 const net = require('net');
 const shortid = require('@rh389/shortid');
 
-const { debug, error, session, tunnel, transferData, encodeData } = require('./tools2');
+const { debug, error, session, tunnel, transferData, encodeData } = require('./tools');
 
 const CLOSE = new Uint8Array([0, 255])
 

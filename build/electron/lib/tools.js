@@ -1,160 +1,94 @@
-const http2 = require('http2');
-const shortid = require('@rh389/shortid');
+const {  BrowserWindow } = require('electron');
 
-const SERVER_HOST =  'p2p.ih-systems.com';
-const SERVER_PORT = 49000;
-
-
-const START = new Uint8Array([1])
-const START_P = new Uint8Array([2])
-const MID = new Uint8Array([3])
-const END = new Uint8Array([4])
-
-
-
-function tunnel(sessionid, type, cb) {
-  const client = http2.connect(`https://${SERVER_HOST}:${SERVER_PORT}`);
-  
-  client.on('error', (err) => console.log(1, err));
-  client.on('stream', (stream) => {});
-
-  const req = client.request({ ':path': `/tunnel?sessionid=${sessionid}&type=${type}` });
-  
-  req.setEncoding('utf8');
-
-  req.on('data', (chunk) => { 
-    const data = chunk.split('\n\n');
-
-    data.forEach(i => {
-      if (i) {
-        cb(JSON.parse(i))
-      }
-    });
-   });
-  req.on('end', () => {
-    client.close();
-  });
-  req.end();
+const winmodes = {
+  1: { w: 800, h: 600 },
+  2: { w: 1204, h: 768}
 }
 
-function transferData(sessionid, type, data) {
-  const buffer = Buffer.from(JSON.stringify(data) + '\n\n', 'utf8');
-  
-  const client = http2.connect(`https://${SERVER_HOST}:${SERVER_PORT}`);
-  client.on('error', (err) => console.log(2, err));
+function createWindow(params, cb) {
+  const wh = winmodes[params.mode] || winmodes[1];
+  const window = new BrowserWindow({
+    title: params.title,
+    show: false,
+    width: wh.w,
+    height: 600,
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegration: true,
+      contextIsolation: false,
+    }
+  })
 
-  const req = client.request({ 
-    ':method': 'POST',
-    ':path': `/transfer?sessionid=${sessionid}&type=${type}`,
-    'Content-Type': 'application/json',
-    'Content-Length': buffer.length,
+  const startUrl = process.env.ELECTRON_START_URL || url.format({
+    pathname: path.join(__dirname, '../index.html'),
+    protocol: 'file:',
+    slashes: true
   });
 
-  req.setEncoding('utf8');
-  req.write(buffer);
-  req.end();
-}
+  window.once('close', (e) => {
+    cb(e.sender.id)
+  });
 
+  window.loadURL(`${startUrl}?window=${params.target}&uuid=${window.id}`);
 
-function session(key) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-
-    const client = http2.connect(`https://${SERVER_HOST}:${SERVER_PORT}`);
-    client.on('error', (e) => reject(e));
-   
-    const req = client.request({ ':path': `/session?key=${key}` });
-    req.setEncoding('utf8');
-    
-    req.on('data', (chunk) => { data += chunk; });
-    req.on('end', () => {
-      resolve(data);
-      client.close();
-    });
-    req.end();
-  });  
-}
-
-function encodeData(size = 10000, sessionid, params, payload) {
-  const temp = [];
-
-  const sid = Buffer.from(sessionid, 'utf8');
-  const uuid = Buffer.from(shortid.generate(), 'utf8');
-
-  const h2 = Buffer.alloc(28);
-
-  h2.set(sid)
-  h2.set(uuid, 14)
+  if (params.fullscreen) {
+    window.maximize();
+  }
   
-  if (payload) {
-    const p = Buffer.from(JSON.stringify({ ...params, size: payload.length }), 'utf8');
-    const h = Buffer.alloc(p.length + 29);
+  window.show();
 
-    h.set(START_P)
-    h.set(h2, START_P.length)
-    h.set(p, START_P.length + h2.length)
-    temp.push(h)
-  } else {
-    const p = Buffer.from(JSON.stringify(params), 'utf8');
-    const h = Buffer.alloc(p.length + 29);
+  return window;
+}
 
-    h.set(START)
-    h.set(h2, START.length)
-    h.set(p, START.length + h2.length)
-    temp.push(h)
+function getServerParams(params) {
+  const server = {
+    key: '',
+    host: '127.0.0.1',
+    port: 8088,
+    protocol: 'http',
+    type: 'url',
+    username: params.username || '',
+    password: params.password || '',
   }
 
-  if (payload) {
-    if (typeof payload === 'string') {
-      const numChunks = Math.ceil(payload.length / size)
-    
-      for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-        const data = Buffer.from(payload.substr(o, size), 'utf8')
-        const temp2 = Buffer.alloc(data.length + 29);
-
-        temp2.set(MID)
-        temp2.set(h2, MID.length)
-        temp2.set(data, MID.length + h2.length)
-
-        temp.push(temp2);
-      }
-    } else {
-      const numChunks = Math.ceil(payload.length / size)
-    
-      for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-        const data = payload.slice(o, o + size)
-        const temp2 = Buffer.alloc(data.length + 29);
-
-        temp2.set(MID)
-        temp2.set(h2, MID.length)
-        temp2.set(data, MID.length + h2.length)
-
-        temp.push(temp2);
+  if (params.host.indexOf('.') !== -1 || params.host.indexOf(':') !== -1) {
+    if (params.host.indexOf('http') !== -1) {
+      if (params.host.indexOf('https://') !== -1) {
+        server.protocol = 'https';
       }
     }
-    const e = Buffer.alloc(29);
-    e.set(END)
-    e.set(h2, END.length)
-    temp.push(e);
+
+    if (params.host.indexOf('://') !== -1) {
+      const temp = params.host.split('://');
+      server.host = temp[1];
+    } else {
+      server.host = params.host;
+    }
+
+    if (server.host.indexOf(':') !== -1) {
+      const temp = server.host.split(':');
+      server.host = temp[0];
+      server.port = temp[1];
+    }
+  } else {
+    server.key = params.host.split(' ').join('');
+    server.type = 'p2p';
   }
 
-  return temp;
+  return server;
 }
 
-function error(mes) {
-  console.log(`Error: ${mes}`)
-}
-
-function debug(mes) {
-  console.log(mes)
+function getServerUrl({ type, key, protocol, host, port, username, password }, isAdmin) {
+  const mode = isAdmin ? 'admin' : '';
+  if (type === 'p2p') {
+    return `https://p2p.ih-systems.com/?key=${key}&username=${username}&password=${password}&mode=${mode}`;
+  }
+  return `${protocol}://${host}:${port}/${mode}?username=${username}&password=${password}`;
 }
 
 
 module.exports = {
-  session,
-  tunnel,
-  transferData,
-  encodeData,
-  error,
-  debug,
-};
+  getServerParams,
+  getServerUrl,
+  createWindow,
+}
