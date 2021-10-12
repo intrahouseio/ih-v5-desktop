@@ -477,7 +477,7 @@ function connectP2P(sid, windowid, key, username, password) {
 
       if (e.status === 'close') {
         if (store.ports[sid].status !== 'close') {
-          store.ports[sid].title = 'Connection Close';
+          store.ports[sid].title = 'Connection Closed';
           store.ports[sid].status = 'close';
 
           serverPortsStatus(windowid).then(res => sendToWindow(windowid, 'ports', res ));

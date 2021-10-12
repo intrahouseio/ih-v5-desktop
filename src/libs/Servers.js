@@ -165,7 +165,7 @@ class Servers extends Component {
     if (this.state.select) {
       const list = this.state.list.map(i => {
         if (i.id === this.state.select) {
-          return { ...i, ...this.state.server, ports: this.state.ports }
+          return { ...i, ...this.state.server, ports: this.state.ports, default: i.default }
         } 
         return i;
       });
