@@ -5,6 +5,7 @@ const gethwid = require('./hwid')
 
 function init() {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+  /*
   process
     .on('unhandledRejection', (reason, p) => {
       console.error(reason, 'Unhandled Rejection at Promise', p);
@@ -12,6 +13,7 @@ function init() {
     .on('uncaughtException', err => {
       console.error(err, 'Uncaught Exception thrown');
     });
+    */
 
   app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 

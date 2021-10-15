@@ -3,3 +3,5 @@ package-lock.json
 #release
 #resources
 dist/
+dist_intrahouse/
+dist_intrascada/

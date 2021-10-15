@@ -1,5 +1,11 @@
 const {  BrowserWindow } = require('electron');
 
+const url = require ('url');
+const path = require('path');
+const fs = require('fs');
+const fetch = require('node-fetch');
+const crypto = require('crypto');
+
 const winmodes = {
   1: { w: 800, h: 600 },
   2: { w: 1204, h: 768}
@@ -19,8 +25,8 @@ function createWindow(params, cb) {
     }
   })
 
-  const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: path.join(__dirname, '../index.html'),
+  const startUrl =  process.env.ELECTRON_START_URL || url.format({
+    pathname: path.join(__dirname, '../../index.html'),
     protocol: 'file:',
     slashes: true
   });

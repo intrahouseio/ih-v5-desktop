@@ -241,7 +241,7 @@ export default function EnhancedTable(props) {
   };
 
   const handleDelete = () => {
-    const temp = rows.filter(i => !selected.includes(i.id));
+    const temp = props.data.filter(i => !selected.includes(i.id));
     setSelected([]);
     props.onDelete(temp)
   }

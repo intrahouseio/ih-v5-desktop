@@ -1,9 +1,10 @@
 {
-  "name": "intraHouse",
+  "appId": "ru.intrascada.desktop", 
+  "name": "intraScada",
   "version": "5.0.10",
   "private": true,
   "main": "electron/main.js",
-  "productName": "intraHouse",
+  "productName": "intraScada",
   "homepage": "./",
   "build": {
     "win": {
@@ -32,14 +33,14 @@
     "@testing-library/user-event": "^12.1.10",
     "events": "^3.3.0",
     "form-data": "^4.0.0",
+    "node-fetch": "2.6.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "simple-peer": "^9.11.0",
+    "systeminformation": "^5.7.7",
     "web-vitals": "^1.0.1",
-    "wrtc": "^0.4.7",
-    "node-fetch": "2.6.1",
-    "systeminformation": "^5.7.7"
+    "wrtc": "^0.4.7"
   },
   "scripts": {
     "electron": "APP_DEV=true electron .",
@@ -71,7 +72,8 @@
   },
   "devDependencies": {
     "electron": "^12.0.2",
-    "electron-builder": "^22.10.5"
+    "electron-builder": "^22.10.5",
+    "electron-builder-notarize": "^1.2.0"
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "author": "",

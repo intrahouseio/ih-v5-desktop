@@ -245,7 +245,7 @@ function Login(props) {
         <div style={styles.page} />
           <div style={styles.panel1}>
             <div style={styles.logoText1}></div>
-            <div style={styles.logoText2}>IntraHouse</div>
+            <div style={styles.logoText2}>intraScada</div>
             <div style={styles.logoText3}><a style={styles.url}></a></div>
           </div>
           <div style={styles.panel2}>

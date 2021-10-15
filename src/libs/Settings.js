@@ -88,8 +88,8 @@ class Settings extends Component {
       <div style={styles.root}>
         <div style={styles.container2}>
           <FormLabel style={styles.flabel} component="legend">Power Save Blocker</FormLabel>
-          <FormControlLabel control={<Checkbox color="primary" onChange={(e) => this.onChangeValue('sleep', e.target.checked)} checked={this.state.data.sleep} />} label="App Suspension"/>
-          <FormControlLabel control={<Checkbox color="primary" onChange={(e) => this.onChangeValue('display', e.target.checked)} checked={this.state.data.display} />} label="Display Sleep​"/>
+          <FormControlLabel control={<Checkbox color="primary" onChange={(e) => this.onChangeValue('sleep', e.target.checked)} checked={this.state.data.sleep} />} label="Block App Suspension"/>
+          <FormControlLabel control={<Checkbox color="primary" onChange={(e) => this.onChangeValue('display', e.target.checked)} checked={this.state.data.display} />} label="Block Display Sleep​"/>
         </div>
         <div style={styles.container3}>
           <FormLabel style={styles.flabel} component="legend">Launch</FormLabel>
